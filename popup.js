@@ -1,5 +1,27 @@
+import {
+  executeSaveScroll,
+  executeGetScroll,
+  executeDeleteScroll
+} from "./helpers.js";
+
 const root = document.getElementById("root");
 root.innerHTML = "<div> Loading...</div>";
+
+window.addEventListener("click", function(e) {
+  if (e.target.href !== undefined) {
+    chrome.tabs.create({ url: e.target.href });
+    chrome.storage.local.set({ "scroll-mark-shortcut-tip": true });
+  }
+});
+
+chrome.storage.local.get("scroll-mark-shortcut-tip", data => {
+  if (!data["scroll-mark-shortcut-tip"]) {
+    const tip = document.getElementById("tip");
+    tip.innerHTML = `💡Tip : Add keyboard shortcuts
+    <a href="chrome://extensions/shortcuts" target="_blank">here</a> to save,
+    fetch or delete scrrolls without having to open the extension popup.`;
+  }
+});
 
 chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
   const fullUrl = tabs[0].url;
@@ -28,20 +50,14 @@ chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
       let deleteScroll = document.getElementById("deleteScroll");
 
       deleteScroll.onclick = function(element) {
-        chrome.tabs.executeScript(tabs[0].id, {
-          file: "delete.js",
-          allFrames: true
-        });
+        executeDeleteScroll(tabs[0].id);
         window.close();
       };
 
       let getScroll = document.getElementById("getScroll");
 
       getScroll.onclick = function(element) {
-        chrome.tabs.executeScript(tabs[0].id, {
-          file: "get.js",
-          allFrames: true
-        });
+        executeGetScroll(tabs[0].id);
         window.close();
       };
     } else {
@@ -55,10 +71,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
     let saveScroll = document.getElementById("saveScroll");
 
     saveScroll.onclick = function(element) {
-      chrome.tabs.executeScript(tabs[0].id, {
-        file: "save.js",
-        allFrames: true
-      });
+      executeSaveScroll(tabs[0].id);
       window.close();
     };
   });

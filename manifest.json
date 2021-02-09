@@ -1,18 +1,18 @@
 {
     "name": "Scrroll In",
     "short_name": "scrroll-in",
-    "version": "2.0",
-    "description": "Never forget where you left a page",
+    "version": "2.9",
+    "description": "An extension to save scroll position of a webpage",
     "permissions": [
         "tabs",
         "storage",
-        "activeTab"
+        "activeTab",
+        "http://*/",
+        "https://*/"
     ],
     "options_page": "options.html",
     "background": {
-        "scripts": [
-            "background.js"
-        ],
+        "page": "background.html",
         "persistent": false
     },
     "browser_action": {
@@ -23,13 +23,36 @@
             "48": "images/icon-48.png",
             "128": "images/icon-128.png",
             "256": "images/icon-256.png"
+        }
+    },
+    "icons": {
+        "16": "images/icon-16.png",
+        "32": "images/icon-32.png",
+        "48": "images/icon-48.png",
+        "128": "images/icon-128.png",
+        "256": "images/icon-256.png"
+    },
+    "commands": {
+        "save-or-update-scroll": {
+            "suggested_key": {
+                "default": "Shift+Ctrl+S",
+                "mac": "Shift+Command+S"
+            },
+            "description": "Save or update scroll"
         },
-        "icons": {
-            "16": "images/icon-16.png",
-            "32": "images/icon-32.png",
-            "48": "images/icon-48.png",
-            "128": "images/icon-128.png",
-            "256": "images/icon-256.png"
+        "delete-scroll": {
+            "suggested_key": {
+                "default": "Shift+Ctrl+D",
+                "mac": "Shift+Command+D"
+            },
+            "description": "Delete scroll"
+        },
+        "fetch-scroll": {
+            "suggested_key": {
+                "default": "Shift+Ctrl+G",
+                "mac": "Shift+Command+G"
+            },
+            "description": "Fetch scroll"
         }
     },
     "manifest_version": 2

@@ -1,17 +1,28 @@
+import {
+  executeSaveScroll,
+  executeGetScroll,
+  executeDeleteScroll,
+} from "./helpers.js";
+
 function getUrlWithoutHash(url) {
   return url.split("?")[0];
 }
 
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.local.set({ "scroll-mark": {} });
+chrome.runtime.setUninstallURL(
+  "https://prateeksurana3255.typeform.com/to/VMfEV6"
+);
+
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === "install") {
+    chrome.storage.local.set({ "scroll-mark": {} });
+  }
 });
 
 const updateIcon = () => {
-  console.log("updated");
-  chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const url = getUrlWithoutHash(tabs[0].url);
 
-    chrome.storage.local.get("scroll-mark", data => {
+    chrome.storage.local.get("scroll-mark", (data) => {
       const scrollMarkData = data["scroll-mark"];
       if (!scrollMarkData.hasOwnProperty(url)) {
         setInactiveIcon();
@@ -23,10 +34,10 @@ const updateIcon = () => {
 };
 
 chrome.tabs.onActivated.addListener(() => {
-  chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const url = getUrlWithoutHash(tabs[0].url);
 
-    chrome.storage.local.get("scroll-mark", data => {
+    chrome.storage.local.get("scroll-mark", (data) => {
       const scrollMarkData = data["scroll-mark"];
       if (!scrollMarkData.hasOwnProperty(url)) {
         setInactiveIcon();
@@ -38,15 +49,16 @@ chrome.tabs.onActivated.addListener(() => {
 });
 
 chrome.tabs.onUpdated.addListener((tabId, updateObj) => {
-  chrome.tabs.get(tabId, tab => {
+  chrome.tabs.get(tabId, (tab) => {
     const url = getUrlWithoutHash(tab.url);
 
     if (url) {
-      chrome.storage.local.get("scroll-mark", data => {
+      chrome.storage.local.get("scroll-mark", (data) => {
         const scrollMarkData = data["scroll-mark"];
         if (!scrollMarkData.hasOwnProperty(url)) {
           setInactiveIcon();
         } else {
+          executeGetScroll(tabId);
           setActiveIcon();
         }
       });
@@ -62,6 +74,19 @@ chrome.runtime.onMessage.addListener((request, sender) => {
   }
 });
 
+chrome.commands.onCommand.addListener(function (command) {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const currentTabId = tabs[0].id;
+    if (command === "save-or-update-scroll") {
+      executeSaveScroll(currentTabId);
+    } else if (command === "delete-scroll") {
+      executeDeleteScroll(currentTabId);
+    } else if (command === "fetch-scroll") {
+      executeGetScroll(currentTabId);
+    }
+  });
+});
+
 const setActiveIcon = () => {
   chrome.browserAction.setIcon({
     path: {
@@ -69,8 +94,8 @@ const setActiveIcon = () => {
       "32": "images/icon-32.png",
       "48": "images/icon-48.png",
       "128": "images/icon-128.png",
-      "256": "images/icon-256.png"
-    }
+      "256": "images/icon-256.png",
+    },
   });
 };
 
@@ -81,7 +106,7 @@ const setInactiveIcon = () => {
       "32": "images/icon-32-inactive.png",
       "48": "images/icon-48-inactive.png",
       "128": "images/icon-128-inactive.png",
-      "256": "images/icon-256-inactive.png"
-    }
+      "256": "images/icon-256-inactive.png",
+    },
   });
 };
